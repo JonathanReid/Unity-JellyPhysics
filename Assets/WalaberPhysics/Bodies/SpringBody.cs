@@ -274,7 +274,13 @@ namespace JelloPhysics
 				shape[(i * 2) + 1] = new VertexPositionColor();
 				shape[(i * 2) + 1].Position = VectorTools.vec3FromVec2(mGlobalShape[i]);
 				shape[(i * 2) + 1].Color = Color.red;
-
+//				if(i != 0)
+//				{
+//					//					Gizmos.DrawLine(springs[(i * 2) + 0].Position,springs[(i * 2) + 1].Position);
+//					Gizmos.DrawLine(springs[i].Position,springs[i+1].Position);
+//					Gizmos.DrawLine(springs[i+1].Position,springs[i-1].Position);
+//				}
+//				Gizmos.DrawLine(springs[mSprings.Count-1].Position,springs[0].Position);
 			}
 			
 			for (int i = 0; i < mSprings.Count; i++)
@@ -286,11 +292,12 @@ namespace JelloPhysics
 				springs[(i * 2) + 1] = new VertexPositionColor();
 				springs[(i * 2) + 1].Position = VectorTools.vec3FromVec2(mPointMasses[mSprings[i].pointMassB].Position);
 				springs[(i * 2) + 1].Color = Color.yellow;
+				Gizmos.color = Color.red;
 				if(i != 0)
 				{
 //					Gizmos.DrawLine(springs[(i * 2) + 0].Position,springs[(i * 2) + 1].Position);
-					Gizmos.DrawLine(springs[i].Position,springs[i+1].Position);
-					Gizmos.DrawLine(springs[i+1].Position,springs[i-1].Position);
+					Gizmos.DrawLine(springs[i*2].Position,springs[(i*2)+1].Position);
+//					Gizmos.DrawLine(springs[(i*2)+1].Position,springs[i-1].Position);
 				}
 			}
 			Gizmos.DrawLine(springs[mSprings.Count-1].Position,springs[0].Position);

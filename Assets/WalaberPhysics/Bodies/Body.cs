@@ -860,6 +860,26 @@ namespace JelloPhysics
 			
 		}
 
+		GameObject _prevShape;
+		void Update()
+		{
+			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+			
+			List<Vector2> points = new List<Vector2> ();
+			for (int i = 0; i < mPointMasses.Count; i++)
+			{
+				points.Add(VectorTools.vec3FromVec2(mPointMasses[i].Position));
+			}
+			MeshBuilder.Instance.BuildMesh2D (points, ShapeBuilt);
+		}
+		
+		private void ShapeBuilt(Shape shape)
+		{
+			Destroy (_prevShape);
+			
+			_prevShape = shape.BuiltGameObject;
+		}
+
 
 		#region PUBLIC PROPERTIES
 		/// <summary>

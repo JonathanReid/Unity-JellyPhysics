@@ -16,6 +16,7 @@ namespace JelloPhysics
         List<int> mIndexList;
         Color mColor = Color.white;
         Color mDistressColor = Color.red;
+		private GameObject _prevShape;
 
         public void Setup(JelloPhysics.World w, JelloPhysics.ClosedShape s, float massPerPoint, float shapeSpringK, float shapeSpringDamp,
             float edgeSpringK, float edgeSpringDamp, Vector2 pos, float angleInRadians, Vector2 scale)
@@ -75,18 +76,28 @@ namespace JelloPhysics
 			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
 			
 			VertexPositionColor[] shape = new VertexPositionColor[mPointMasses.Count];
+
 			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+			List<Vector2> points = new List<Vector2> ();
 			for (int i = 0; i < mPointMasses.Count; i++)
 			{
 				shape[i] = new VertexPositionColor();
 				shape[i].Position = VectorTools.vec3FromVec2(mPointMasses[i].Position);
 				shape[i].Color = Color.red;
+
+				Gizmos.color = Color.white;
 				if(i != 0)
 				{
 					Gizmos.DrawLine(shape[i-1].Position,shape[i].Position);
 				}
 			}
+
+			for (int i = 0; i < mSprings.Count; i++) {
+				Gizmos.color = Color.red;
+				Gizmos.DrawLine(VectorTools.vec3FromVec2(mPointMasses[mSprings[i].pointMassA].Position),VectorTools.vec3FromVec2(mPointMasses[mSprings[i].pointMassB].Position));
+			}
 			Gizmos.DrawLine(shape[mPointMasses.Count-1].Position,shape[0].Position);
 		}
+
     }
 }
