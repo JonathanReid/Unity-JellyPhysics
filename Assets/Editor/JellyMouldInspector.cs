@@ -24,7 +24,8 @@ namespace JelloPhysics
 
 			_target.SpringK = EditorGUILayout.FloatField ("SpringK:",_target.SpringK);
 			_target.Damping = EditorGUILayout.FloatField ("Damping:",_target.Damping);
-
+			_target.detail = EditorGUILayout.IntField ("Shape detail:",_target.detail);
+			_target.type = (JellyMould.JellyType)EditorGUILayout.EnumPopup("shape type",_target.type);
         }
 
         public void OnSceneGUI()
