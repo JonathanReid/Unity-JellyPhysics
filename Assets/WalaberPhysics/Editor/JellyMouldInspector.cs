@@ -26,13 +26,13 @@ namespace JelloPhysics
 			_target.Damping = EditorGUILayout.FloatField ("Damping:",_target.Damping);
 			_target.detail = EditorGUILayout.IntField ("Shape detail:",_target.detail);
 			_target.type = (JellyMould.JellyType)EditorGUILayout.EnumPopup("shape type",_target.type);
+			LoadOutlinePoints();
         }
 
         public void OnSceneGUI()
         {
             if (_target != null)
             {
-                LoadOutlinePoints();
             }
         }
 

@@ -28,7 +28,10 @@ public class MeshBuilder : MonoBehaviour
     private int[] _tris;
     private int _sortOrder;
     private List<Vector2> _points;
+    private bool _filter;
     private Action<Shape> _finishedAction;
+    private bool _updateExistingMesh;
+    private Mesh _otherMesh;
 //    private List<float> _normalPoints;
 
     public static MeshBuilder Instance
@@ -48,10 +51,12 @@ public class MeshBuilder : MonoBehaviour
         }
     }
 
-    public void BuildMesh2D(List<Vector2> points, Action<Shape> completedHandler)
+    public void BuildMesh2D(List<Vector2> points, Action<Shape> completedHandler, bool filter = true)
     {
         _build3D = false;
         _meshDepth = 0;
+        _filter = filter;
+        _updateExistingMesh = false;
         _finishedAction = completedHandler;
         BuildMesh(points);
     }
@@ -60,6 +65,7 @@ public class MeshBuilder : MonoBehaviour
     {
         _build3D = true;
         _meshDepth = depth;
+        _updateExistingMesh = false;
         BuildMesh(points);
     }
 
@@ -77,14 +83,35 @@ public class MeshBuilder : MonoBehaviour
             return;
         }
 
+        if(_filter)
+        {
+            _points = LineFilter.Filter(_points);
+        }
+
         ConstructPolygon();
+    }
+
+    public void UpdateMeshPoints(Mesh mesh, List<Vector2> points, bool filter = true)
+    {
+        _otherMesh = mesh;
+        _build3D = false;
+        _meshDepth = 0;
+        _filter = filter;
+        _updateExistingMesh = true;
+        BuildMesh(points);
     }
 
     private void ContinueCreatingShape()
     {
         AssignBoundsToPolygon();
         ConstructMeshData();
-        AssignDataToMesh();
+        if (_updateExistingMesh)
+        {
+            UpdateExisitingMesh();
+        }
+        else
+        {
+            AssignDataToMesh();
         
         if (_points.Count < MINIMUM_POINTS_FOR_MESH)
         {
@@ -92,6 +119,7 @@ public class MeshBuilder : MonoBehaviour
         }
 
         _finishedAction(_lastCreatedObject);
+        }
     }
 
 
@@ -269,6 +297,17 @@ public class MeshBuilder : MonoBehaviour
                 count_tris += 6;
             }
         }
+    }
+
+    private void UpdateExisitingMesh()
+    {
+        _otherMesh.vertices = _vertices;
+        _otherMesh.colors32 = _colors;
+        _otherMesh.uv = _uvs;
+        _otherMesh.triangles = _tris;
+        _otherMesh.RecalculateNormals();
+        _otherMesh.Optimize();
+        _otherMesh.RecalculateBounds();
     }
 
     private void AssignDataToMesh()

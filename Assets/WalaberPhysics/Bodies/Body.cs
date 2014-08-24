@@ -19,10 +19,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using UnityEngine;
 
 namespace JelloPhysics
@@ -51,7 +51,7 @@ namespace JelloPhysics
         protected bool mIsStatic;
         protected bool mKinematic;
         protected object mObjectTag;
-
+        protected Vector2 Position;
         protected float mVelDamping = 0.999f;
 
         //// debug visualization variables
@@ -69,7 +69,7 @@ namespace JelloPhysics
         /// default constructor.
         /// </summary>
         /// <param name="w">world to add this body to (done automatically)</param>
-        public void Setup( World w )
+        public void Setup(World w)
         {
             mAABB = new AABB();
             mBaseShape = null;
@@ -108,15 +108,16 @@ namespace JelloPhysics
             mPointMasses = new List<PointMass>();
             setShape(shape);
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].Mass = massPerPoint;
+                mPointMasses [i].Mass = massPerPoint;
 
             updateAABB(0f, true);
 
             w.addBody(this);
-			List<Vector2> points = new List<Vector2>();
-			foreach (PointMass m in mPointMasses) {
-				points.Add(m.Position);
-			}
+            List<Vector2> points = new List<Vector2>();
+            foreach (PointMass m in mPointMasses)
+            {
+                points.Add(m.Position);
+            }
         }
 
         /// <summary>
@@ -129,7 +130,7 @@ namespace JelloPhysics
         /// <param name="angleInRadians">global angle of the body</param>
         /// <param name="scale">local scale of the body</param>
         /// <param name="kinematic">whether this body is kinematically controlled.</param>
-		public void Setup(World w, ClosedShape shape, List<float> pointMasses, Vector2 position, float angleInRadians, Vector2 scale, bool kinematic)
+        public void Setup(World w, ClosedShape shape, List<float> pointMasses, Vector2 position, float angleInRadians, Vector2 scale, bool kinematic)
         {
             mAABB = new AABB();
             mDerivedPos = position;
@@ -143,7 +144,7 @@ namespace JelloPhysics
             mPointMasses = new List<PointMass>();
             setShape(shape);
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].Mass = pointMasses[i];
+                mPointMasses [i].Mass = pointMasses [i];
 
             updateAABB(0f, true);
 
@@ -172,7 +173,7 @@ namespace JelloPhysics
                 mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
 
                 for (int i = 0; i < mBaseShape.Vertices.Count; i++)
-                    mPointMasses.Add(new PointMass(0.0f, mGlobalShape[i]));               
+                    mPointMasses.Add(new PointMass(0.0f, mGlobalShape [i]));               
             }
         }
         #endregion
@@ -185,9 +186,12 @@ namespace JelloPhysics
         public void setMassAll(float mass)
         {
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].Mass = mass;
+                mPointMasses [i].Mass = mass;
 
-            if (float.IsPositiveInfinity(mass)) { mIsStatic = true; }
+            if (float.IsPositiveInfinity(mass))
+            {
+                mIsStatic = true;
+            }
         }
 
         /// <summary>
@@ -195,10 +199,10 @@ namespace JelloPhysics
         /// </summary>
         /// <param name="index">index of the PointMass</param>
         /// <param name="mass">new mass</param>
-        public void setMassIndividual( int index, float mass )
+        public void setMassIndividual(int index, float mass)
         {
             if ((index >= 0) && (index < mPointMasses.Count))
-                mPointMasses[index].Mass = mass;
+                mPointMasses [index].Mass = mass;
         }
 
         /// <summary>
@@ -210,7 +214,7 @@ namespace JelloPhysics
             if (masses.Count == mPointMasses.Count)
             {
                 for (int i = 0; i < mPointMasses.Count; i++)
-                    mPointMasses[i].Mass = masses[i];
+                    mPointMasses [i].Mass = masses [i];
             }
         }
         #endregion
@@ -236,7 +240,7 @@ namespace JelloPhysics
         {
             mBaseShape.transformVertices(ref pos, angleInRadians, ref scale, ref mGlobalShape);
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].Position = mGlobalShape[i];
+                mPointMasses [i].Position = mGlobalShape [i];
 
             mDerivedPos = pos;
             mDerivedAngle = angleInRadians;
@@ -297,11 +301,11 @@ namespace JelloPhysics
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                center.x += mPointMasses[i].Position.x;
-                center.y += mPointMasses[i].Position.y;
+                center.x += mPointMasses [i].Position.x;
+                center.y += mPointMasses [i].Position.y;
 
-                vel.x += mPointMasses[i].Velocity.x;
-                vel.y += mPointMasses[i].Velocity.y;
+                vel.x += mPointMasses [i].Velocity.x;
+                vel.y += mPointMasses [i].Velocity.y;
             }
 
             center.x /= mPointMasses.Count;
@@ -320,32 +324,40 @@ namespace JelloPhysics
             for (int i = 0; i < mPointMasses.Count; i++)
             {
                 Vector2 baseNorm = new Vector2();
-                baseNorm.x = mBaseShape.Vertices[i].x;
-                baseNorm.y = mBaseShape.Vertices[i].y;
-				baseNorm.Normalize();
+                baseNorm.x = mBaseShape.Vertices [i].x;
+                baseNorm.y = mBaseShape.Vertices [i].y;
+                baseNorm.Normalize();
 //                Vector2.Normalize(ref baseNorm, out baseNorm);
 
                 Vector2 curNorm = new Vector2();
-                curNorm.x = mPointMasses[i].Position.x - mDerivedPos.x;
-                curNorm.y = mPointMasses[i].Position.y - mDerivedPos.y;
-				curNorm.Normalize();
+                curNorm.x = mPointMasses [i].Position.x - mDerivedPos.x;
+                curNorm.y = mPointMasses [i].Position.y - mDerivedPos.y;
+                curNorm.Normalize();
 //                Vector2.Normalize(ref curNorm, out curNorm);
 
                 float dot;
-				dot = Vector2.Dot(baseNorm,curNorm);
+                dot = Vector2.Dot(baseNorm, curNorm);
 //                Vector2.Dot(ref baseNorm, ref curNorm, out dot);
-                if (dot > 1.0f) { dot = 1.0f; }
-                if (dot < -1.0f) { dot = -1.0f; }
+                if (dot > 1.0f)
+                {
+                    dot = 1.0f;
+                }
+                if (dot < -1.0f)
+                {
+                    dot = -1.0f;
+                }
 
                 float thisAngle = (float)Math.Acos(dot);
-                if (!JelloPhysics.VectorTools.isCCW(ref baseNorm, ref curNorm)) { thisAngle = -thisAngle; }
+                if (!JelloPhysics.VectorTools.isCCW(ref baseNorm, ref curNorm))
+                {
+                    thisAngle = -thisAngle;
+                }
 
                 if (i == 0)
                 {
                     originalSign = (thisAngle >= 0.0f) ? 1 : -1;
                     originalAngle = thisAngle;
-                }
-                else
+                } else
                 {
                     float diff = (thisAngle - originalAngle);
                     int thisSign = (thisAngle >= 0.0f) ? 1 : -1;
@@ -415,32 +427,45 @@ namespace JelloPhysics
         /// this function should add all internal forces to the Force member variable of each PointMass in the body.
         /// these should be forces that try to maintain the shape of the body.
         /// </summary>
-        public virtual void accumulateInternalForces() {}
+        public virtual void accumulateInternalForces()
+        {
+            UpdatePosition();
+            CheckCollision();
+            DrawShape();
+        }
 
         /// <summary>
         /// this function should add all external forces to the Force member variable of each PointMass in the body.
         /// these are external forces acting on the PointMasses, such as gravity, etc.
         /// </summary>
-        public virtual void accumulateExternalForces() {}
+        public virtual void accumulateExternalForces()
+        {
+        }
         #endregion
 
         #region INTEGRATION
         internal void integrate(float elapsed)
         {
-            if (mIsStatic) { return; }
+            if (mIsStatic)
+            {
+                return;
+            }
 
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].integrateForce(elapsed);
+                mPointMasses [i].integrateForce(elapsed);
         }
 
         internal void dampenVelocity()
         {
-            if (mIsStatic) { return; }
+            if (mIsStatic)
+            {
+                return;
+            }
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                mPointMasses[i].Velocity.x *= mVelDamping;
-                mPointMasses[i].Velocity.y *= mVelDamping;
+                mPointMasses [i].Velocity.x *= mVelDamping;
+                mPointMasses [i].Velocity.y *= mVelDamping;
             }
         }
         #endregion
@@ -458,14 +483,14 @@ namespace JelloPhysics
                 mAABB.clear();
                 for (int i = 0; i < mPointMasses.Count; i++)
                 {
-                    Vector2 p = mPointMasses[i].Position;
+                    Vector2 p = mPointMasses [i].Position;
                     mAABB.expandToInclude(ref p);
 
                     // expanding for velocity only makes sense for dynamic objects.
                     if (!IsStatic)
                     {
-                        p.x += (mPointMasses[i].Velocity.x * elapsed);
-                        p.y += (mPointMasses[i].Velocity.y * elapsed);
+                        p.x += (mPointMasses [i].Velocity.x * elapsed);
+                        p.y += (mPointMasses [i].Velocity.y * elapsed);
                         mAABB.expandToInclude(ref p);
                     }
                 }
@@ -498,16 +523,16 @@ namespace JelloPhysics
 
             // line we are testing against goes from pt -> endPt.
             bool inside = false;
-            Vector2 edgeSt = mPointMasses[0].Position;
+            Vector2 edgeSt = mPointMasses [0].Position;
             Vector2 edgeEnd = new Vector2();
             int c = mPointMasses.Count;
             for (int i = 0; i < c; i++)
             {
                 // the current edge is defined as the line from edgeSt -> edgeEnd.
                 if (i < (c - 1))
-                    edgeEnd = mPointMasses[i + 1].Position;
+                    edgeEnd = mPointMasses [i + 1].Position;
                 else
-                    edgeEnd = mPointMasses[0].Position;
+                    edgeEnd = mPointMasses [0].Position;
 
                 // perform check now...
                 if (((edgeSt.y <= pt.y) && (edgeEnd.y > pt.y)) || ((edgeSt.y > pt.y) && (edgeEnd.y <= pt.y)))
@@ -525,6 +550,80 @@ namespace JelloPhysics
             return inside;
         }
 
+        private void UpdatePosition()
+        {
+            Vector2 p = Vector2.zero;
+            int i = 0, l = mPointMasses.Count;
+            for (; i<l; ++i)
+            {
+                p += mPointMasses [i].Position;
+            }
+
+            Position = p / l;
+        }
+
+        private List<Body> _collisionBodies = new List<Body>();
+        private void CheckCollision()
+        {
+            Body[] otherPressureBodies = FindObjectsOfType<Body>();
+            if (otherPressureBodies.Length > 1)
+            {
+                otherPressureBodies = otherPressureBodies.OrderBy(n => Vector2.Distance(n.Position, this.Position)).ToArray();
+                otherPressureBodies = otherPressureBodies.Where(n => n!=this).ToArray();
+                int i = 0, l = otherPressureBodies.Length;
+                for (; i<l; ++i)
+                {
+                    Body b = otherPressureBodies [i];
+                    int j = 0, k = b.mPointMasses.Count;
+                    bool hit = false;
+                    for (; j<k; ++j)
+                    {
+                        if (contains(ref b.mPointMasses[j].Position))
+                        {
+                            hit = true;
+                            break;
+                        }
+                    }
+                
+                    if (hit)
+                    {
+                        if(_collisionBodies.Contains(b))
+                        {
+                            CollisionStay(b);
+                        }
+                        else
+                        {
+                            CollisionEnter(b);
+                            _collisionBodies.Add(b);
+                        }
+                    }
+                    else
+                    {
+                        if(_collisionBodies.Contains(b))
+                        {
+                            CollisionExit(b);
+                            _collisionBodies.Remove(b);
+                        }
+                    }
+                }
+            }
+        }
+
+        public virtual void CollisionEnter(Body otherBody)
+        {
+            Debug.Log("otherbody enter " + otherBody.name);
+
+        }
+
+        public virtual void CollisionStay(Body otherBody)
+        {
+        }
+
+        public virtual void CollisionExit(Body otherBody)
+        {
+            Debug.Log("otherbody exit " + otherBody.name);
+        }
+
         /// <summary>
         /// collision detection - given a global point, find the point on this body that is closest to the global point,
         /// and if it is an edge, information about the edge it resides on.
@@ -536,7 +635,7 @@ namespace JelloPhysics
         /// <param name="pointB">returned ptB on the edge</param>
         /// <param name="edgeD">scalar distance between ptA and ptB [0,1]</param>
         /// <returns>distance</returns>
-        public float getClosestPoint( Vector2 pt, out Vector2 hitPt, out Vector2 normal, out int pointA, out int pointB, out float edgeD )
+        public float getClosestPoint(Vector2 pt, out Vector2 hitPt, out Vector2 normal, out int pointA, out int pointB, out float edgeD)
         {
             hitPt = Vector2.zero;
             pointA = -1;
@@ -594,13 +693,13 @@ namespace JelloPhysics
             edgeD = 0f;
             float dist = 0f;
 
-            Vector2 ptA = mPointMasses[edgeNum].Position;
+            Vector2 ptA = mPointMasses [edgeNum].Position;
             Vector2 ptB = new Vector2();
 
             if (edgeNum < (mPointMasses.Count - 1))
-                ptB = mPointMasses[edgeNum + 1].Position;
+                ptB = mPointMasses [edgeNum + 1].Position;
             else
-                ptB = mPointMasses[0].Position;
+                ptB = mPointMasses [0].Position;
 
             Vector2 toP = new Vector2();
             toP.x = pt.x - ptA.x;
@@ -625,28 +724,26 @@ namespace JelloPhysics
             // calculate the distance!
             float x;
 //            Vector2.Dot(ref toP, ref E, out x);
-			x = Vector2.Dot (toP, E);
+            x = Vector2.Dot(toP, E);
             if (x <= 0.0f)
             {
                 // x is outside the line segment, distance is from pt to ptA.
                 //dist = (pt - ptA).Length();
 //                Vector2.Distance(ref pt, ref ptA, out dist);
-				dist = Vector2.Distance(pt,ptA);
+                dist = Vector2.Distance(pt, ptA);
                 hitPt = ptA;
                 edgeD = 0f;
                 normal = n;
-            }
-            else if (x >= edgeLength)
+            } else if (x >= edgeLength)
             {
                 // x is outside of the line segment, distance is from pt to ptB.
                 //dist = (pt - ptB).Length();
 //                Vector2.Distance(ref pt, ref ptB, out dist);
-				dist = Vector2.Distance(pt,ptB);
+                dist = Vector2.Distance(pt, ptB);
                 hitPt = ptB;
                 edgeD = 1f;
                 normal = n;
-            }
-            else
+            } else
             {
                 // point lies somewhere on the line segment.
                 Vector3 toP3 = new Vector3();
@@ -659,7 +756,7 @@ namespace JelloPhysics
 
                 //dist = Math.Abs(Vector3.Cross(toP3, E3).z);
 //                Vector3.Cross(ref toP3, ref E3, out E3);
-				E3 = Vector3.Cross(toP3,E3);
+                E3 = Vector3.Cross(toP3, E3);
                 dist = Mathf.Abs(E3.z);
                 hitPt.x = ptA.x + (E.x * x);
                 hitPt.y = ptA.y + (E.y * x);
@@ -692,13 +789,13 @@ namespace JelloPhysics
             edgeD = 0f;
             float dist = 0f;
 
-            Vector2 ptA = mPointMasses[edgeNum].Position;
+            Vector2 ptA = mPointMasses [edgeNum].Position;
             Vector2 ptB = new Vector2();
 
             if (edgeNum < (mPointMasses.Count - 1))
-                ptB = mPointMasses[edgeNum + 1].Position;
+                ptB = mPointMasses [edgeNum + 1].Position;
             else
-                ptB = mPointMasses[0].Position;
+                ptB = mPointMasses [0].Position;
 
             Vector2 toP = new Vector2();
             toP.x = pt.x - ptA.x;
@@ -723,30 +820,28 @@ namespace JelloPhysics
             // calculate the distance!
             float x;
 //            Vector2.Dot(ref toP, ref E, out x);
-			x = Vector2.Dot (toP, E);
+            x = Vector2.Dot(toP, E);
             if (x <= 0.0f)
             {
                 // x is outside the line segment, distance is from pt to ptA.
                 //dist = (pt - ptA).Length();
 //                Vector2.DistanceSquared(ref pt, ref ptA, out dist);
-				dist = Vector2.Distance(pt,ptA);
-				dist = dist * dist;
+                dist = Vector2.Distance(pt, ptA);
+                dist = dist * dist;
                 hitPt = ptA;
                 edgeD = 0f;
                 normal = n;
-            }
-            else if (x >= edgeLength)
+            } else if (x >= edgeLength)
             {
                 // x is outside of the line segment, distance is from pt to ptB.
                 //dist = (pt - ptB).Length();
 //                Vector2.DistanceSquared(ref pt, ref ptB, out dist);
-				dist = Vector2.Distance(pt,ptB);
-				dist = dist * dist;
+                dist = Vector2.Distance(pt, ptB);
+                dist = dist * dist;
                 hitPt = ptB;
                 edgeD = 1f;
                 normal = n;
-            }
-            else
+            } else
             {
                 // point lies somewhere on the line segment.
                 Vector3 toP3 = new Vector3();
@@ -759,7 +854,7 @@ namespace JelloPhysics
 
                 //dist = Math.Abs(Vector3.Cross(toP3, E3).z);
 //                Vector3.Cross(ref toP3, ref E3, out E3);
-				E3 = Vector3.Cross(toP3,E3);
+                E3 = Vector3.Cross(toP3, E3);
                 dist = Mathf.Abs(E3.z * E3.z);
                 hitPt.x = ptA.x + (E.x * x);
                 hitPt.y = ptA.y + (E.y * x);
@@ -784,7 +879,7 @@ namespace JelloPhysics
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                float thisD = (pos - mPointMasses[i].Position).SqrMagnitude();
+                float thisD = (pos - mPointMasses [i].Position).SqrMagnitude();
                 if (thisD < closestSQD)
                 {
                     closestSQD = thisD;
@@ -811,7 +906,7 @@ namespace JelloPhysics
         /// <returns>PointMass</returns>
         public PointMass getPointMass(int index)
         {
-            return mPointMasses[index];
+            return mPointMasses [index];
         }
 
         /// <summary>
@@ -827,62 +922,67 @@ namespace JelloPhysics
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                Vector2 toPt = (mPointMasses[i].Position - mDerivedPos);
+                Vector2 toPt = (mPointMasses [i].Position - mDerivedPos);
                 Vector2 torque = JelloPhysics.VectorTools.rotateVector(toPt, -(float)(Math.PI) / 2f);
 
-                mPointMasses[i].Force += torque * torqueF;
+                mPointMasses [i].Force += torque * torqueF;
 
-                mPointMasses[i].Force += force;
+                mPointMasses [i].Force += force;
             }
         }
         #endregion
 
-		void OnDrawGizmos()
-		{
-			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
-			
-			VertexPositionColor[] debugVerts = new VertexPositionColor[mGlobalShape.Length + 1];
-			for (int i = 0; i < mGlobalShape.Length; i++)
-			{
-				debugVerts[i] = new VertexPositionColor();
-				debugVerts[i].Position = VectorTools.vec3FromVec2(mGlobalShape[i]);
-				debugVerts[i].Color = Color.red;
-				Gizmos.color = Color.red;
-				if(i != 0)
-				{
-					Gizmos.DrawLine(debugVerts[i-1].Position,debugVerts[i].Position);
-				}
-			}
-			debugVerts[debugVerts.Length - 1] = new VertexPositionColor();
-			debugVerts[debugVerts.Length - 1].Position = VectorTools.vec3FromVec2(mGlobalShape[0]);
-			debugVerts[debugVerts.Length - 1].Color = Color.gray;
-			Gizmos.DrawLine(debugVerts[debugVerts.Length-1].Position,debugVerts[0].Position);
-			
-		}
+        void OnDrawGizmos()
+        {
+            mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+            
+            VertexPositionColor[] debugVerts = new VertexPositionColor[mGlobalShape.Length + 1];
+            for (int i = 0; i < mGlobalShape.Length; i++)
+            {
+                debugVerts [i] = new VertexPositionColor();
+                debugVerts [i].Position = VectorTools.vec3FromVec2(mGlobalShape [i]);
+                debugVerts [i].Color = Color.red;
+                Gizmos.color = Color.red;
+                if (i != 0)
+                {
+                    Gizmos.DrawLine(debugVerts [i - 1].Position, debugVerts [i].Position);
+                }
+            }
+            debugVerts [debugVerts.Length - 1] = new VertexPositionColor();
+            debugVerts [debugVerts.Length - 1].Position = VectorTools.vec3FromVec2(mGlobalShape [0]);
+            debugVerts [debugVerts.Length - 1].Color = Color.gray;
+            Gizmos.DrawLine(debugVerts [debugVerts.Length - 1].Position, debugVerts [0].Position);
+            
+        }
 
-		GameObject _prevShape;
-		void Update()
-		{
-			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
-			
-			List<Vector2> points = new List<Vector2> ();
-			for (int i = 0; i < mPointMasses.Count; i++)
-			{
-				points.Add(VectorTools.vec3FromVec2(mPointMasses[i].Position));
-			}
-			MeshBuilder.Instance.BuildMesh2D (points, ShapeBuilt);
-		}
-		
-		private void ShapeBuilt(Shape shape)
-		{
-			Destroy (_prevShape);
-			
-			_prevShape = shape.BuiltGameObject;
-		}
+        GameObject _prevShape;
+
+        private void DrawShape()
+        {
+            mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+            
+            List<Vector2> points = new List<Vector2>();
+            for (int i = 0; i < mPointMasses.Count; i++)
+            {
+                points.Add(VectorTools.vec3FromVec2(mPointMasses [i].Position));
+            }
+            if (_prevShape == null)
+            {
+                MeshBuilder.Instance.BuildMesh2D(points, ShapeBuilt);
+            } else
+            {
+                MeshBuilder.Instance.UpdateMeshPoints(_prevShape.GetComponent<MeshFilter>().mesh,points);
+            }
+        }
+        
+        private void ShapeBuilt(Shape shape)
+        {
+            _prevShape = shape.BuiltGameObject;
+        }
 
 
-		#region PUBLIC PROPERTIES
-		/// <summary>
+        #region PUBLIC PROPERTIES
+        /// <summary>
         /// Gets / Sets whether this is a static body.  setting static greatly improves performance on static bodies.
         /// </summary>
         public bool IsStatic
