@@ -11,11 +11,9 @@ namespace JelloPhysics
         private Vector2 dragForce = Vector2.zero;
         private int dragPoint = -1;
 
-        VertexPositionColor[] mVerts = null;
-        int[] mIndices = null;
-        List<int> mIndexList;
-        Color mColor = Color.white;
-        Color mDistressColor = Color.red;
+        private VertexPositionColor[] mVerts = null;
+        private int[] mIndices = null;
+        private List<int> mIndexList;
 		private GameObject _prevShape;
 
         public void Setup(JelloPhysics.World w, JelloPhysics.ClosedShape s, float massPerPoint, float shapeSpringK, float shapeSpringDamp,
@@ -41,9 +39,6 @@ namespace JelloPhysics
             mIndices = new int[mIndexList.Count];
             for (int i = 0; i < mIndexList.Count; i++)
                 mIndices[i] = mIndexList[i];
-
-            mColor = c;
-            mDistressColor = d;
         }
 
         public void setDragForce(Vector2 force, int pm)
@@ -60,7 +55,7 @@ namespace JelloPhysics
             // gravity.
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                mPointMasses[i].Force.y += -9.8f * mPointMasses[i].Mass;
+                mPointMasses[i].Force += new Vector2((JellyWorldManager.Instance.Gravity.x*Gravity), (JellyWorldManager.Instance.Gravity.y*Gravity) * mPointMasses[i].Mass);
             }
 
             // dragging force.

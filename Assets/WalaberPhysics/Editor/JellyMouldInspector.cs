@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace JelloPhysics
 {
-    [CustomEditor (typeof(JellyMould))]
+    [CustomEditor (typeof(JellyObject))]
     public class JellyMouldInspector : UnityEditor.Editor
     {
 
-        private JellyMould _target;
+        private JellyObject _target;
         private Texture _texture;
         private List<Vector2> _points;
         private Polygon _polygon;
@@ -20,20 +20,18 @@ namespace JelloPhysics
 
         public override void OnInspectorGUI()
         {
-			_target = target as JellyMould;
+			_target = target as JellyObject;
 
 			_target.SpringK = EditorGUILayout.FloatField ("SpringK:",_target.SpringK);
 			_target.Damping = EditorGUILayout.FloatField ("Damping:",_target.Damping);
 			_target.detail = EditorGUILayout.IntField ("Shape detail:",_target.detail);
-			_target.type = (JellyMould.JellyType)EditorGUILayout.EnumPopup("shape type",_target.type);
-			LoadOutlinePoints();
-        }
-
-        public void OnSceneGUI()
-        {
-            if (_target != null)
-            {
-            }
+			_target.type = (JellyObject.JellyType)EditorGUILayout.EnumPopup("shape type",_target.type);
+			_target.GravityModifier = EditorGUILayout.Slider ("Gravity modifier (-2,2):", _target.GravityModifier, -2f, 2f);
+			_target.BaseMaterial = EditorGUILayout.ObjectField (_target.BaseMaterial, typeof(Material), false) as Material;
+			if(GUILayout.Button("Build Shape"))
+		   	{	
+				LoadOutlinePoints();
+			}
         }
 
         private void LoadOutlinePoints()
@@ -48,6 +46,8 @@ namespace JelloPhysics
             }
 
             _points.Add(_points [0]);
+
+			DestroyImmediate(_target.GetComponent<PolygonCollider2D> ());
 
             DestroyImmediate(_oldShape);
             MeshBuilder.Instance.BuildMesh2D(_points, ShapeBuilt);

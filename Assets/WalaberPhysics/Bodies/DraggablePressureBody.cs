@@ -12,10 +12,9 @@ namespace JelloPhysics
         private int dragPoint = -1;
 
 //        VertexDeclaration mDecl;
-        VertexPositionColor[] mVerts = null;
-        int[] mIndices = null;
-        List<int> mIndexList;
-        Color mColor = Color.white;
+        private VertexPositionColor[] mVerts = null;
+        private int[] mIndices = null;
+        private List<int> mIndexList;
 
         public void Setup(JelloPhysics.World w, JelloPhysics.ClosedShape s, float massPerPoint, float gasPressure,
             float shapeSpringK, float shapeSpringDamp, float edgeSpringK, float edgeSpringDamp, Vector2 pos, float angleInRadians, Vector2 scale)
@@ -46,8 +45,6 @@ namespace JelloPhysics
             mIndices = new int[mIndexList.Count];
             for (int i = 0; i < mIndexList.Count; i++)
                 mIndices[i] = mIndexList[i];
-
-            mColor = c;
         }
 
         // add gravity, and drag force.
@@ -57,7 +54,7 @@ namespace JelloPhysics
 
             // gravity.
             for (int i = 0; i < mPointMasses.Count; i++)
-                mPointMasses[i].Force += new Vector2(0.0f, -9.8f * mPointMasses[i].Mass);
+                mPointMasses[i].Force += new Vector2((JellyWorldManager.Instance.Gravity.x*Gravity), (JellyWorldManager.Instance.Gravity.y*Gravity) * mPointMasses[i].Mass);
 
             if (dragPoint != -1)
                 mPointMasses[dragPoint].Force += dragForce;

@@ -27,6 +27,7 @@ using UnityEngine;
 
 namespace JelloPhysics
 {
+
     /// <summary>
     /// contains base functionality for all bodies in the JelloPhysics world.  all bodies are
     /// made up of a ClosedShape geometry, and a list of PointMass objects equal to the number of vertices in the
@@ -36,14 +37,22 @@ namespace JelloPhysics
     /// </summary>
     public class Body : MonoBehaviour
     {
+        #region EVENTS
+        public delegate void CollisionEvent(Body otherBody);
+        public event CollisionEvent OnCollisionEnter;
+        public event CollisionEvent OnCollisionStay;
+        public event CollisionEvent OnCollisionExit;
+        #endregion
+
         #region PRIVATE VARIABLES
-        protected ClosedShape mBaseShape;
-        protected Vector2[] mGlobalShape;
-        protected List<PointMass> mPointMasses;
-        protected Vector2 mScale;
-        protected Vector2 mDerivedPos;
-        protected Vector2 mDerivedVel;
-        protected float mDerivedAngle;
+        internal ClosedShape mBaseShape;
+        internal Vector2[] mGlobalShape;
+        internal List<PointMass> mPointMasses;
+        internal Vector2 mScale;
+        internal Vector2 mDerivedPos;
+        internal Vector2 mDerivedVel;
+        internal float mDerivedAngle;
+        internal float Gravity;
         protected float mDerivedOmega;
         protected float mLastAngle;
         protected AABB mAABB;
@@ -51,7 +60,6 @@ namespace JelloPhysics
         protected bool mIsStatic;
         protected bool mKinematic;
         protected object mObjectTag;
-        protected Vector2 Position;
         protected float mVelDamping = 0.999f;
 
         //// debug visualization variables
@@ -429,9 +437,7 @@ namespace JelloPhysics
         /// </summary>
         public virtual void accumulateInternalForces()
         {
-            UpdatePosition();
             CheckCollision();
-            DrawShape();
         }
 
         /// <summary>
@@ -550,25 +556,13 @@ namespace JelloPhysics
             return inside;
         }
 
-        private void UpdatePosition()
-        {
-            Vector2 p = Vector2.zero;
-            int i = 0, l = mPointMasses.Count;
-            for (; i<l; ++i)
-            {
-                p += mPointMasses [i].Position;
-            }
-
-            Position = p / l;
-        }
-
         private List<Body> _collisionBodies = new List<Body>();
         private void CheckCollision()
         {
             Body[] otherPressureBodies = FindObjectsOfType<Body>();
             if (otherPressureBodies.Length > 1)
             {
-                otherPressureBodies = otherPressureBodies.OrderBy(n => Vector2.Distance(n.Position, this.Position)).ToArray();
+                otherPressureBodies = otherPressureBodies.OrderBy(n => Vector2.Distance(n.DerivedPosition, this.DerivedPosition)).ToArray();
                 otherPressureBodies = otherPressureBodies.Where(n => n!=this).ToArray();
                 int i = 0, l = otherPressureBodies.Length;
                 for (; i<l; ++i)
@@ -609,19 +603,40 @@ namespace JelloPhysics
             }
         }
 
-        public virtual void CollisionEnter(Body otherBody)
+        /// <summary>
+        /// Collision Entered. For override.
+        /// </summary>
+        /// <param name="otherBody">Other body.</param>
+        public virtual void CollisionEnter(Body otherBody) 
         {
-            Debug.Log("otherbody enter " + otherBody.name);
-
+            if (OnCollisionEnter != null)
+            {
+                OnCollisionEnter(otherBody);
+            }
         }
 
-        public virtual void CollisionStay(Body otherBody)
+        /// <summary>
+        /// Collision Stay. For override.
+        /// </summary>
+        /// <param name="otherBody">Other body.</param>
+        public virtual void CollisionStay(Body otherBody) 
         {
+            if (OnCollisionStay != null)
+            {
+                OnCollisionStay(otherBody);
+            }
         }
 
+        /// <summary>
+        /// Collision Exit. For override.
+        /// </summary>
+        /// <param name="otherBody">Other body.</param>
         public virtual void CollisionExit(Body otherBody)
         {
-            Debug.Log("otherbody exit " + otherBody.name);
+            if (OnCollisionExit != null)
+            {
+                OnCollisionExit(otherBody);
+            }
         }
 
         /// <summary>
@@ -954,32 +969,6 @@ namespace JelloPhysics
             Gizmos.DrawLine(debugVerts [debugVerts.Length - 1].Position, debugVerts [0].Position);
             
         }
-
-        GameObject _prevShape;
-
-        private void DrawShape()
-        {
-            mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
-            
-            List<Vector2> points = new List<Vector2>();
-            for (int i = 0; i < mPointMasses.Count; i++)
-            {
-                points.Add(VectorTools.vec3FromVec2(mPointMasses [i].Position));
-            }
-            if (_prevShape == null)
-            {
-                MeshBuilder.Instance.BuildMesh2D(points, ShapeBuilt);
-            } else
-            {
-                MeshBuilder.Instance.UpdateMeshPoints(_prevShape.GetComponent<MeshFilter>().mesh,points);
-            }
-        }
-        
-        private void ShapeBuilt(Shape shape)
-        {
-            _prevShape = shape.BuiltGameObject;
-        }
-
 
         #region PUBLIC PROPERTIES
         /// <summary>

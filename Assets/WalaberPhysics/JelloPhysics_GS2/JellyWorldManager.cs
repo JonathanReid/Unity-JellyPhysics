@@ -33,6 +33,7 @@ namespace JelloPhysics
 			}
 		}
 
+        public Vector2 Gravity = new Vector2(0,-9.8f);
         private Vector3 _cursorPos = Vector3.zero;
         private Body _dragBody = null;
         private int _dragPoint = -1;

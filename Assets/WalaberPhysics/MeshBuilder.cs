@@ -14,7 +14,6 @@ public class MeshBuilder : MonoBehaviour
     public Color vertexColor;
     private static MeshBuilder _instance;
     private Shape _lastCreatedObject;
-    private bool _build3D;
     private float _meshDepth;
     private Polygon _polygon;
     private Vector2 _lowerBound;
@@ -53,19 +52,10 @@ public class MeshBuilder : MonoBehaviour
 
     public void BuildMesh2D(List<Vector2> points, Action<Shape> completedHandler, bool filter = true)
     {
-        _build3D = false;
         _meshDepth = 0;
         _filter = filter;
         _updateExistingMesh = false;
         _finishedAction = completedHandler;
-        BuildMesh(points);
-    }
-
-    public void BuildMesh3D(List<Vector2> points, float depth)
-    {
-        _build3D = true;
-        _meshDepth = depth;
-        _updateExistingMesh = false;
         BuildMesh(points);
     }
 
@@ -91,18 +81,23 @@ public class MeshBuilder : MonoBehaviour
         ConstructPolygon();
     }
 
-    public void UpdateMeshPoints(Mesh mesh, List<Vector2> points, bool filter = true)
+    private Transform _baseObject;
+    public void UpdateMeshPoints(Mesh mesh, Vector2 bounds, Transform obj, List<Vector2> points, bool filter = true)
     {
         _otherMesh = mesh;
-        _build3D = false;
+        _baseObject = obj;
         _meshDepth = 0;
         _filter = filter;
+        _boundingBox = bounds;
         _updateExistingMesh = true;
         BuildMesh(points);
     }
 
     private void ContinueCreatingShape()
     {
+        if (!_updateExistingMesh)
+        {
+        }
         AssignBoundsToPolygon();
         ConstructMeshData();
         if (_updateExistingMesh)
@@ -165,21 +160,21 @@ public class MeshBuilder : MonoBehaviour
         {
             _uvBounds.x = _uvBounds.y;
         }
-
-        if (_uvBounds.x > 4)
-        {
-            _uvBounds.x = _uvBounds.y = 4;
-        }
-        else
-        {
-            _uvBounds.x = _uvBounds.y = 4;
-        }
+//
+//        if (_uvBounds.x > 4)
+//        {
+//            _uvBounds.x = _uvBounds.y = 4;
+//        }
+//        else
+//        {
+//            _uvBounds.x = _uvBounds.y = 4;
+//        }
     }
 
     private void ConstructMeshData()
     {
-        int vertCount = _build3D ? (_polygon.Triangles.Count * 3) * 2 : (_polygon.Triangles.Count * 3);
-        int triCount = _build3D ? (_polygon.Triangles.Count * 3) * 2 + (_polygon.Triangles.Count * 3) * 6 : (_polygon.Triangles.Count * 3);
+        int vertCount = (_polygon.Triangles.Count * 3);
+        int triCount = (_polygon.Triangles.Count * 3);
 
         _vertices = new Vector3[vertCount];
         _colors = new Color32[_vertices.Length];
@@ -201,13 +196,6 @@ public class MeshBuilder : MonoBehaviour
                 relativePoint = transform.TransformPoint(relativePoint);
                 _uvs[i] = new Vector2(relativePoint.x / _boundingBox.x, relativePoint.y / _boundingBox.y);
 
-                if (_build3D)
-                {
-                    _vertices[j] = new Vector3(tp.Xf, tp.Yf, _meshDepth);
-                    _colors[j] = vertexColor;
-                    _uvs[j] = new Vector2(relativePoint.x / _boundingBox.x, relativePoint.y / _boundingBox.y);
-                }
-
                 i++;
                 j++;
             }
@@ -225,82 +213,14 @@ public class MeshBuilder : MonoBehaviour
             _tris[j + 1] = j + 1;
             _tris[j + 2] = j;
 
-            if (_build3D)
-            {
-                _tris[count_tris + j] = (j) + count_tris;
-                _tris[count_tris + j + 1] = (j + 1) + count_tris;
-                _tris[count_tris + j + 2] = (j + 2) + count_tris;
-            }
             j += 3;
         }
 
-        //building perimiter polygon faces.
-        if (_build3D)
-        {
-            count_tris += (_polygon.Triangles.Count * 3);
-            l = (_polygon.Triangles.Count * 3);
-
-            i = 0;
-            j = 0;
-            List<Vector2> ed = new List<Vector2>();
-            foreach (DelaunayTriangle triangle in _polygon.Triangles)
-            {
-                bool a = false;
-                bool b = false;
-                bool c = false;
-
-                foreach (DelaunayTriangle t in _polygon.Triangles)
-                {
-                    if (!t.Points.Contains(triangle.Points[0]) && !t.Points.Contains(triangle.Points[1]))
-                    {
-                        a = true;
-                    }
-
-                    if (!t.Points.Contains(triangle.Points[1]) && !t.Points.Contains(triangle.Points[2]))
-                    {
-                        b = true;
-                    }
-
-                    if (!t.Points.Contains(triangle.Points[2]) && !t.Points.Contains(triangle.Points[0]))
-                    {
-                        c = true;
-                    }
-                }
-
-                if (a)
-                {
-                    ed.Add(new Vector2(i, i + 1));
-                }
-                if (b)
-                {
-                    ed.Add(new Vector2(i + 1, i + 2));
-                }
-                if (c)
-                {
-                    ed.Add(new Vector2(i + 2, i));
-                }
-                i += 3;
-            }
-
-            i = 0;
-            l = ed.Count;
-            j = (_polygon.Triangles.Count * 3);
-            for (; i < l; i += 1)
-            {
-                _tris[count_tris] = (int)ed[i].y;
-                _tris[count_tris + 1] = ((int)ed[i].x) + j;
-                _tris[count_tris + 2] = (int)ed[i].x;
-
-                _tris[count_tris + 3] = (int)ed[i].y;
-                _tris[count_tris + 4] = ((int)ed[i].y) + j;
-                _tris[count_tris + 5] = (int)ed[i].x + j;
-                count_tris += 6;
-            }
-        }
     }
 
     private void UpdateExisitingMesh()
     {
+        _otherMesh.Clear();
         _otherMesh.vertices = _vertices;
         _otherMesh.colors32 = _colors;
         _otherMesh.uv = _uvs;

@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using System.Collections;
 
@@ -8,12 +8,12 @@ namespace JelloPhysics
     {
 
         private bool _render;
-        private JellyMould _target;
+        private JellyObject _target;
         private Texture _texture;
         private Vector2[] _points;
         private Vector2 _scrollPos;
 
-        public void SetupWindow(JellyMould targetJelly)
+        public void SetupWindow(JellyObject targetJelly)
         {
             _target = targetJelly;
             _texture = _target.GetComponent<SpriteRenderer>().sprite.texture;
