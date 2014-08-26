@@ -49,9 +49,7 @@ namespace JelloPhysics
         internal Vector2[] mGlobalShape;
         internal List<PointMass> mPointMasses;
         internal Vector2 mScale;
-        internal Vector2 mDerivedPos;
         internal Vector2 mDerivedVel;
-        internal float mDerivedAngle;
         internal float Gravity;
         protected float mDerivedOmega;
         protected float mLastAngle;
@@ -62,6 +60,31 @@ namespace JelloPhysics
         protected object mObjectTag;
         protected float mVelDamping = 0.999f;
 
+        protected Vector2 _derivedPos;
+        public Vector2 DerivedPos
+        {
+            get{
+                return _derivedPos;
+            }
+            set
+            {
+                _derivedPos = value;
+                transform.position = _derivedPos;
+            }
+        }
+
+        protected float _derivedAngle;
+        internal float DerivedAngle
+        {
+            get{
+                return _derivedAngle;
+            }
+            set
+            {
+                _derivedAngle = value;
+                transform.rotation = Quaternion.Euler(0, 0, _derivedAngle*Mathf.Rad2Deg);
+            }
+        }
         //// debug visualization variables
 //        VertexDeclaration mVertexDecl = null;
         #endregion
@@ -105,9 +128,9 @@ namespace JelloPhysics
         public void Setup(World w, ClosedShape shape, float massPerPoint, Vector2 position, float angleInRadians, Vector2 scale, bool kinematic)
         {
             mAABB = new AABB();
-            mDerivedPos = position;
-            mDerivedAngle = angleInRadians;
-            mLastAngle = mDerivedAngle;
+            DerivedPos = position;
+            DerivedAngle = angleInRadians;
+            mLastAngle = DerivedAngle;
             mScale = scale;
             mMaterial = 0;
             mIsStatic = float.IsPositiveInfinity(massPerPoint);
@@ -141,9 +164,9 @@ namespace JelloPhysics
         public void Setup(World w, ClosedShape shape, List<float> pointMasses, Vector2 position, float angleInRadians, Vector2 scale, bool kinematic)
         {
             mAABB = new AABB();
-            mDerivedPos = position;
-            mDerivedAngle = angleInRadians;
-            mLastAngle = mDerivedAngle;
+            DerivedPos = position;
+            DerivedAngle = angleInRadians;
+            mLastAngle = DerivedAngle;
             mScale = scale;
             mMaterial = 0;
             mIsStatic = false;
@@ -178,7 +201,7 @@ namespace JelloPhysics
                 mPointMasses.Clear();
                 mGlobalShape = new Vector2[mBaseShape.Vertices.Count];
                 
-                mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+                mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
 
                 for (int i = 0; i < mBaseShape.Vertices.Count; i++)
                     mPointMasses.Add(new PointMass(0.0f, mGlobalShape [i]));               
@@ -246,12 +269,12 @@ namespace JelloPhysics
         /// <param name="angleInRadians">global angle</param>
         public virtual void setPositionAngle(Vector2 pos, float angleInRadians, Vector2 scale)
         {
-            mBaseShape.transformVertices(ref pos, angleInRadians, ref scale, ref mGlobalShape);
+            mBaseShape.transformVertices(pos, angleInRadians, ref scale, ref mGlobalShape);
             for (int i = 0; i < mPointMasses.Count; i++)
                 mPointMasses [i].Position = mGlobalShape [i];
 
-            mDerivedPos = pos;
-            mDerivedAngle = angleInRadians;
+            DerivedPos = pos;
+            DerivedAngle = angleInRadians;
         }
 
         /// <summary>
@@ -261,7 +284,7 @@ namespace JelloPhysics
         /// <param name="pos">position in global space.</param>
         public virtual void setKinematicPosition(ref Vector2 pos)
         {
-            mDerivedPos = pos;
+            DerivedPos = pos;
         }
 
         /// <summary>
@@ -271,7 +294,7 @@ namespace JelloPhysics
         /// <param name="angleInRadians"></param>
         public virtual void setKinematicAngle(float angleInRadians)
         {
-            mDerivedAngle = angleInRadians;
+            DerivedAngle = angleInRadians;
         }
 
         /// <summary>
@@ -322,7 +345,7 @@ namespace JelloPhysics
             vel.x /= mPointMasses.Count;
             vel.y /= mPointMasses.Count;
 
-            mDerivedPos = center;
+            DerivedPos = center;
             mDerivedVel = vel;
 
             // find the average angle of all of the masses.
@@ -338,8 +361,8 @@ namespace JelloPhysics
 //                Vector2.Normalize(ref baseNorm, out baseNorm);
 
                 Vector2 curNorm = new Vector2();
-                curNorm.x = mPointMasses [i].Position.x - mDerivedPos.x;
-                curNorm.y = mPointMasses [i].Position.y - mDerivedPos.y;
+                curNorm.x = mPointMasses [i].Position.x - DerivedPos.x;
+                curNorm.y = mPointMasses [i].Position.y - DerivedPos.y;
                 curNorm.Normalize();
 //                Vector2.Normalize(ref curNorm, out curNorm);
 
@@ -380,10 +403,10 @@ namespace JelloPhysics
             }
 
             angle /= mPointMasses.Count;
-            mDerivedAngle = angle;
+            DerivedAngle = angle;
 
             // now calculate the derived Omega, based on change in angle over time.
-            float angleChange = (mDerivedAngle - mLastAngle);
+            float angleChange = (DerivedAngle - mLastAngle);
             if (Math.Abs(angleChange) >= Math.PI)
             {
                 if (angleChange < 0f)
@@ -394,24 +417,14 @@ namespace JelloPhysics
 
             mDerivedOmega = angleChange / elaspsed;
 
-            mLastAngle = mDerivedAngle;
+            mLastAngle = DerivedAngle;
         }
 
-        /// <summary>
-        /// Derived position of the body in global space, based on location of all PointMasses.
-        /// </summary>
-        public Vector2 DerivedPosition
-        {
-            get { return mDerivedPos; }
-        }
 
         /// <summary>
         /// Derived global angle of the body in global space, based on location of all PointMasses.
         /// </summary>
-        public float DerivedAngle
-        {
-            get { return mDerivedAngle; }
-        }
+
 
         /// <summary>
         /// Derived global velocity of the body in global space, based on velocity of all PointMasses.
@@ -562,7 +575,7 @@ namespace JelloPhysics
             Body[] otherPressureBodies = FindObjectsOfType<Body>();
             if (otherPressureBodies.Length > 1)
             {
-                otherPressureBodies = otherPressureBodies.OrderBy(n => Vector2.Distance(n.DerivedPosition, this.DerivedPosition)).ToArray();
+                otherPressureBodies = otherPressureBodies.OrderBy(n => Vector2.Distance(n.DerivedPos, this.DerivedPos)).ToArray();
                 otherPressureBodies = otherPressureBodies.Where(n => n!=this).ToArray();
                 int i = 0, l = otherPressureBodies.Length;
                 for (; i<l; ++i)
@@ -931,13 +944,13 @@ namespace JelloPhysics
         /// <param name="force">direction and intensity of force, in global space</param>
         public void addGlobalForce(ref Vector2 pt, ref Vector2 force)
         {
-            Vector2 R = (mDerivedPos - pt);
+            Vector2 R = (DerivedPos - pt);
             
             float torqueF = Vector3.Cross(JelloPhysics.VectorTools.vec3FromVec2(R), JelloPhysics.VectorTools.vec3FromVec2(force)).z;
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                Vector2 toPt = (mPointMasses [i].Position - mDerivedPos);
+                Vector2 toPt = (mPointMasses [i].Position - DerivedPos);
                 Vector2 torque = JelloPhysics.VectorTools.rotateVector(toPt, -(float)(Math.PI) / 2f);
 
                 mPointMasses [i].Force += torque * torqueF;
@@ -949,7 +962,7 @@ namespace JelloPhysics
 
         void OnDrawGizmos()
         {
-            mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+            mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
             
             VertexPositionColor[] debugVerts = new VertexPositionColor[mGlobalShape.Length + 1];
             for (int i = 0; i < mGlobalShape.Length; i++)

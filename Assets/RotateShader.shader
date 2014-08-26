@@ -27,7 +27,7 @@
             float _RotationSpeed;
             void vert (inout appdata_full v) {
                 v.texcoord.xy -=0.5;
-                float s = sin ( _RotationSpeed );
+                float s = sin ( _RotationSpeed);
                 float c = cos ( _RotationSpeed);
                 float2x2 rotationMatrix = float2x2( c, -s, s, c);
                 rotationMatrix *=0.5;

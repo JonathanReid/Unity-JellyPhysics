@@ -141,7 +141,7 @@ namespace JelloPhysics
         /// <param name="angleInRadians">rotation (in radians)</param>
         /// <param name="localScale">scale</param>
         /// <param name="outList">new list of transformed points.</param>
-        public void transformVertices(ref Vector2 worldPos, float angleInRadians, ref Vector2 localScale, ref Vector2[] outList)
+        public void transformVertices(Vector2 worldPos, float angleInRadians, ref Vector2 localScale, ref Vector2[] outList)
         {
             for (int i = 0; i < mLocalVertices.Count; i++)
             {

@@ -68,11 +68,11 @@ namespace JelloPhysics
 		
 		void OnDrawGizmos()
 		{
-			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
 			
 			VertexPositionColor[] shape = new VertexPositionColor[mPointMasses.Count];
 
-			mBaseShape.transformVertices(ref mDerivedPos, mDerivedAngle, ref mScale, ref mGlobalShape);
+			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
 			List<Vector2> points = new List<Vector2> ();
 			for (int i = 0; i < mPointMasses.Count; i++)
 			{

@@ -85,20 +85,16 @@ public class MeshBuilder : MonoBehaviour
     public void UpdateMeshPoints(Mesh mesh, Vector2 bounds, Transform obj, List<Vector2> points, bool filter = true)
     {
         _otherMesh = mesh;
-        _baseObject = obj;
         _meshDepth = 0;
         _filter = filter;
-        _boundingBox = bounds;
         _updateExistingMesh = true;
         BuildMesh(points);
     }
 
     private void ContinueCreatingShape()
     {
-        if (!_updateExistingMesh)
-        {
-        }
         AssignBoundsToPolygon();
+       
         ConstructMeshData();
         if (_updateExistingMesh)
         {
@@ -150,6 +146,7 @@ public class MeshBuilder : MonoBehaviour
         _upperBound = new Vector2((float)_polygon.MaxX, (float)_polygon.MaxY);
 
         _boundingBox = _upperBound - _lowerBound;
+//        Debug.Log(_boundingBox);
 
         _uvBounds = _boundingBox;
         if (_uvBounds.x > _uvBounds.y)
@@ -195,6 +192,7 @@ public class MeshBuilder : MonoBehaviour
                 Vector2 relativePoint = new Vector2(tp.Xf, tp.Yf) - _lowerBound;
                 relativePoint = transform.TransformPoint(relativePoint);
                 _uvs[i] = new Vector2(relativePoint.x / _boundingBox.x, relativePoint.y / _boundingBox.y);
+//                Debug.Log(_uvs[i]);
 
                 i++;
                 j++;
@@ -222,12 +220,9 @@ public class MeshBuilder : MonoBehaviour
     {
         _otherMesh.Clear();
         _otherMesh.vertices = _vertices;
-        _otherMesh.colors32 = _colors;
+//        _otherMesh.colors32 = _colors;
         _otherMesh.uv = _uvs;
         _otherMesh.triangles = _tris;
-        _otherMesh.RecalculateNormals();
-        _otherMesh.Optimize();
-        _otherMesh.RecalculateBounds();
     }
 
     private void AssignDataToMesh()

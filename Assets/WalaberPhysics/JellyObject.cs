@@ -111,7 +111,7 @@ namespace JelloPhysics
 
         private void DrawJellyShape()
         {   
-            _body.mBaseShape.transformVertices(ref _body.mDerivedPos, _body.mDerivedAngle, ref _body.mScale, ref _body.mGlobalShape);
+            _body.mBaseShape.transformVertices(_body.DerivedPos, _body.DerivedAngle, ref _body.mScale, ref _body.mGlobalShape);
             
             List<Vector2> points = new List<Vector2>();
             for (int i = 0; i < _body.mPointMasses.Count; i++)
@@ -129,11 +129,12 @@ namespace JelloPhysics
                 MeshBuilder.Instance.BuildMesh2D(points, ShapeBuilt);
             } else
             {
-                _prevShape.renderer.material.SetFloat("_RotationSpeed",_body.DerivedAngle);
+//                _prevShape.renderer.material.SetFloat("_RotationSpeed",_body.DerivedAngle);
                 Vector2 bounds = _prevShape.GetComponent<Shape>().BoundingBox;
-                bounds = _prevShape.transform.TransformPoint(bounds);
+//                bounds = _prevShape.transform.TransformPoint(bounds);
+//                Debug.Log(_body.DerivedPosition);
 //                bounds += _prevShape.GetComponent<Shape>().BoundingBox;
-                MeshBuilder.Instance.UpdateMeshPoints(_mesh, bounds,_prevShape.transform,points);
+//                MeshBuilder.Instance.UpdateMeshPoints(_mesh, bounds,_prevShape.transform,points);
             }
         }
 
