@@ -82,7 +82,7 @@ public class MeshBuilder : MonoBehaviour
     }
 
     private Transform _baseObject;
-    public void UpdateMeshPoints(Mesh mesh, Vector2 bounds, Transform obj, List<Vector2> points, bool filter = true)
+    public void UpdateMeshPoints(Mesh mesh,List<Vector2> points, bool filter = true)
     {
         _otherMesh = mesh;
         _meshDepth = 0;

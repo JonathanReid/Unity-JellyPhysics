@@ -411,8 +411,8 @@ namespace JelloPhysics
 
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-//                mPointMasses[i].UnRotatedPsition = mPointMasses[i].Position;
-//                mPointMasses[i].UnRotatedPsition = RotatePointAroundPivot(mPointMasses[i].UnRotatedPsition,DerivedPos,-deltaAngle*Mathf.Rad2Deg);
+                Vector2 point = Vector2.zero + (mPointMasses[i].Position - DerivedPos);
+				mPointMasses[i].UnRotatedPsition = RotatePointAroundPivot(point,Vector2.zero,-(DerivedAngle*Mathf.Rad2Deg));
             }
 
             // now calculate the derived Omega, based on change in angle over time.

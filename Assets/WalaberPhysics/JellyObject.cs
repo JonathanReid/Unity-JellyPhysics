@@ -116,7 +116,9 @@ namespace JelloPhysics
             List<Vector2> points = new List<Vector2>();
             for (int i = 0; i < _body.mPointMasses.Count; i++)
             {
-                points.Add(VectorTools.vec3FromVec2(_body.mPointMasses [i].Position));
+				Vector3 p = _prevShape != null ? _prevShape.transform.localPosition : Vector3.zero;
+				Vector2 p1 = p;
+                points.Add( _body.mPointMasses [i].UnRotatedPsition - p1);
             }
             if (_prevShape == null)
             {
@@ -130,11 +132,11 @@ namespace JelloPhysics
             } else
             {
 //                _prevShape.renderer.material.SetFloat("_RotationSpeed",_body.DerivedAngle);
-                Vector2 bounds = _prevShape.GetComponent<Shape>().BoundingBox;
+//                Vector2 bounds = _prevShape.GetComponent<Shape>().BoundingBox;
 //                bounds = _prevShape.transform.TransformPoint(bounds);
 //                Debug.Log(_body.DerivedPosition);
 //                bounds += _prevShape.GetComponent<Shape>().BoundingBox;
-//                MeshBuilder.Instance.UpdateMeshPoints(_mesh, bounds,_prevShape.transform,points);
+                MeshBuilder.Instance.UpdateMeshPoints(_mesh,points);
             }
         }
 
