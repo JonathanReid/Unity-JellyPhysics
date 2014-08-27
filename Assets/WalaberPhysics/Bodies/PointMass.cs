@@ -46,6 +46,8 @@ namespace JelloPhysics
         /// </summary>
         public Vector2 Position;
 
+        public Vector2 UnRotatedPsition;
+
         /// <summary>
         /// Global velocity of the PointMass.
         /// </summary>
@@ -70,6 +72,7 @@ namespace JelloPhysics
         {
             Mass = mass;
             Position = pos;
+            UnRotatedPsition = pos;
             Velocity = Force = Vector2.zero;
         }
         #endregion
@@ -92,6 +95,10 @@ namespace JelloPhysics
 
                 Position.x += (Velocity.x * elapsed);
                 Position.y += (Velocity.y * elapsed);
+
+//                UnRotatedPsition.x += (Velocity.x * elapsed);
+//                UnRotatedPsition.y += (Velocity.y * elapsed);
+
             }
 
             Force.x = 0f;

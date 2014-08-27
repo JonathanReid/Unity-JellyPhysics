@@ -76,11 +76,11 @@ namespace JelloPhysics
 				shape[i].Color = Color.red;
 				if(i != 0)
 				{
-					Gizmos.DrawLine(shape[i-1].Position,shape[i].Position);
+                    Gizmos.DrawLine(mPointMasses[i-1].UnRotatedPsition,mPointMasses[i].UnRotatedPsition);
 				}
 			}
 			
-			Gizmos.DrawLine(shape[mPointMasses.Count-1].Position,shape[0].Position);
+            Gizmos.DrawLine(mPointMasses[mPointMasses.Count-1].UnRotatedPsition,mPointMasses[0].UnRotatedPsition);
 		}
 
     }

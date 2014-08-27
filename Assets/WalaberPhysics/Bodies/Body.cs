@@ -315,6 +315,7 @@ namespace JelloPhysics
         /// This is called by the World object each Update(), so usually a user does not need to call this.  Instead
         /// you can juse access the DerivedPosition, DerivedAngle, DerivedVelocity, and DerivedOmega properties.
         /// </summary>
+
         public void derivePositionAndAngle(float elaspsed)
         {
             // no need it this is a static body, or kinematically controlled.
@@ -403,7 +404,16 @@ namespace JelloPhysics
             }
 
             angle /= mPointMasses.Count;
+            float deltaAngle = DerivedAngle;
             DerivedAngle = angle;
+
+            deltaAngle = DerivedAngle - deltaAngle;
+
+            for (int i = 0; i < mPointMasses.Count; i++)
+            {
+//                mPointMasses[i].UnRotatedPsition = mPointMasses[i].Position;
+//                mPointMasses[i].UnRotatedPsition = RotatePointAroundPivot(mPointMasses[i].UnRotatedPsition,DerivedPos,-deltaAngle*Mathf.Rad2Deg);
+            }
 
             // now calculate the derived Omega, based on change in angle over time.
             float angleChange = (DerivedAngle - mLastAngle);
@@ -418,6 +428,13 @@ namespace JelloPhysics
             mDerivedOmega = angleChange / elaspsed;
 
             mLastAngle = DerivedAngle;
+        }
+
+        public Vector2 RotatePointAroundPivot(Vector2 point, Vector2 pivot, float angles) {
+            Vector2 dir = point - pivot; // get point direction relative to pivot
+            dir = Quaternion.Euler(0,0,angles) * dir; // rotate it
+            point = dir + pivot; // calculate rotated point
+            return point; // return it
         }
 
 
@@ -965,21 +982,21 @@ namespace JelloPhysics
             mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
             
             VertexPositionColor[] debugVerts = new VertexPositionColor[mGlobalShape.Length + 1];
-            for (int i = 0; i < mGlobalShape.Length; i++)
+            for (int i = 0; i < mPointMasses.Count; i++)
             {
-                debugVerts [i] = new VertexPositionColor();
-                debugVerts [i].Position = VectorTools.vec3FromVec2(mGlobalShape [i]);
-                debugVerts [i].Color = Color.red;
+//                debugVerts [i] = new VertexPositionColor();
+//                debugVerts [i].Position = VectorTools.vec3FromVec2(mGlobalShape [i]);
+//                debugVerts [i].Color = Color.red;
                 Gizmos.color = Color.red;
                 if (i != 0)
                 {
-                    Gizmos.DrawLine(debugVerts [i - 1].Position, debugVerts [i].Position);
+//                    Gizmos.DrawLine(mPointMasses [i - 1].UnRotatedPsition, mPointMasses [i].UnRotatedPsition);
                 }
             }
-            debugVerts [debugVerts.Length - 1] = new VertexPositionColor();
-            debugVerts [debugVerts.Length - 1].Position = VectorTools.vec3FromVec2(mGlobalShape [0]);
-            debugVerts [debugVerts.Length - 1].Color = Color.gray;
-            Gizmos.DrawLine(debugVerts [debugVerts.Length - 1].Position, debugVerts [0].Position);
+//            debugVerts [debugVerts.Length - 1] = new VertexPositionColor();
+//            debugVerts [debugVerts.Length - 1].Position = VectorTools.vec3FromVec2(mGlobalShape [0]);
+//            debugVerts [debugVerts.Length - 1].Color = Color.gray;
+//            Gizmos.DrawLine(debugVerts [debugVerts.Length - 1].Position, debugVerts [0].Position);
             
         }
 
