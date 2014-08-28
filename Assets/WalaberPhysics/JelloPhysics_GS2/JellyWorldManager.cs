@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Threading;
 
 namespace JelloPhysics
 {
 	public class JellyWorldManager : MonoBehaviour {
 	
-		private World _world;
-		public World World
+		private static World _world;
+		public static World World
 		{
 			get
 			{
@@ -19,11 +20,11 @@ namespace JelloPhysics
 		{
 			get
 			{
-				if(_instance == null)
+				if(_instance)
 				{
 					_instance = GameObject.FindObjectOfType<JellyWorldManager>();
 				}
-				if(_instance == null)
+				if(_instance)
 				{
 					GameObject go = new GameObject();
 					go.name = "JellyWorldManager";
@@ -33,22 +34,38 @@ namespace JelloPhysics
 			}
 		}
 
-        public Vector2 Gravity = new Vector2(0,-9.8f);
+        public static Vector2 Gravity = new Vector2(0,-9.8f);
         private Vector3 _cursorPos = Vector3.zero;
         private Body _dragBody = null;
         private int _dragPoint = -1;
+        private Thread _physicsThread;
+        private bool _cancelFlag;
 
 		// Use this for initialization
 		void Awake () {
+            Application.targetFrameRate = 60;
 			_world = new JelloPhysics.World();
             CreateFloor();
+            _physicsThread = new Thread(UpdatePhysics){Name = "PhysicsThread"};
+            _physicsThread.Start();
 		}
+
+        private void UpdatePhysics()
+        {
+            while (_cancelFlag == false)
+            {
+                for (int i = 0; i < 3; i++)
+                    _world.update(1f/120f);
+
+                Thread.Sleep(25);
+            }
+        }
 
 		private void CreateFloor()
 		{
 			// static ground object.
 			GameObject ground = new GameObject ();
-			ClosedShape groundShape = ground.AddComponent<ClosedShape> ();
+			ClosedShape groundShape = new ClosedShape ();
 			groundShape.begin();
 			groundShape.addVertex(new Vector2(-10f, -2f));
 			groundShape.addVertex(new Vector2(-10f, 2f));
@@ -57,15 +74,14 @@ namespace JelloPhysics
 			groundShape.finish();
 			
 			// make the body.
-			Body groundBody = ground.AddComponent<Body> ();
+            Body groundBody = new Body();
 			groundBody.Setup(_world, groundShape, float.PositiveInfinity, new Vector2(0f, -5f), 0f, Vector2.one, false);
 		}
 
         void Update()
         {
             // UPDATE the physics!
-            for (int i = 0; i < 3; i++)
-                _world.update(1 / 120f);
+
 
             _cursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -90,7 +106,7 @@ namespace JelloPhysics
             
             if (Input.GetMouseButtonDown(0))
             {
-                if (_dragBody == null)
+                if (_dragBody == (null))
                 {
                     int body;
                     _world.getClosestPointMass(_cursorPos, out body, out _dragPoint);

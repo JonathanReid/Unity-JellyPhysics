@@ -31,7 +31,7 @@ namespace JelloPhysics
 
             // static ground object.
 			GameObject ground = new GameObject ();
-			JelloPhysics.ClosedShape groundShape = ground.AddComponent<JelloPhysics.ClosedShape> ();
+			JelloPhysics.ClosedShape groundShape = new JelloPhysics.ClosedShape ();
             groundShape.begin();
             groundShape.addVertex(new Vector2(-10f, -2f));
             groundShape.addVertex(new Vector2(-10f, 2f));
@@ -40,7 +40,7 @@ namespace JelloPhysics
             groundShape.finish();
 
             // make the body.
-			JelloPhysics.Body groundBody = ground.AddComponent<JelloPhysics.Body> ();
+            JelloPhysics.Body groundBody = new JelloPhysics.Body();
 			groundBody.Setup(mWorld, groundShape, float.PositiveInfinity, new Vector2(0f, -5f), 0f, Vector2.one, false);
 
         }
@@ -64,7 +64,7 @@ namespace JelloPhysics
             if (Input.GetKeyDown(KeyCode.A))
             {
 				GameObject s = new GameObject ();
-				JelloPhysics.ClosedShape shape = s.AddComponent<JelloPhysics.ClosedShape> ();
+				JelloPhysics.ClosedShape shape = new JelloPhysics.ClosedShape ();
 
                 shape.begin();
                 shape.addVertex(new Vector2(-1.0f, 0f));
@@ -73,7 +73,7 @@ namespace JelloPhysics
                 shape.addVertex(new Vector2(0f, -1.0f));
                 shape.finish();
 
-				DraggableSpringBody body = s.AddComponent<DraggableSpringBody>();
+				DraggableSpringBody body = new DraggableSpringBody();
 				body.Setup(mWorld, shape, 1f, 150, 5,300,15, new Vector2(cursorPos.x, cursorPos.y),((float)UnityEngine.Random.Range(0,360)), Vector2.one);
 
                 body.addInternalSpring(0, 2, 400f, 12f);
@@ -83,7 +83,7 @@ namespace JelloPhysics
 			if (Input.GetKeyDown(KeyCode.B))
 			{
 				GameObject s = new GameObject ();
-				JelloPhysics.ClosedShape shape = s.AddComponent<JelloPhysics.ClosedShape> ();
+				JelloPhysics.ClosedShape shape = new JelloPhysics.ClosedShape ();
 
 				shape.begin();
 				for (int i = 0; i < 360; i += 20)
@@ -92,7 +92,7 @@ namespace JelloPhysics
 				}
 				shape.finish();
 				
-				DraggablePressureBody pb = s.AddComponent<DraggablePressureBody>();
+				DraggablePressureBody pb = new DraggablePressureBody();
 				pb.Setup(mWorld, shape, 1.0f, 40.0f, 10.0f, 1.0f, 300.0f, 20.0f, cursorPos, 0, Vector2.one);
 				pb.addTriangle(0, 10, 9);
 				pb.addTriangle(0, 9, 1);

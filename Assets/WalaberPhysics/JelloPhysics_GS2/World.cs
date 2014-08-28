@@ -383,6 +383,7 @@ namespace JelloPhysics
             // now dampen velocities.
             for (int i = 0; i < mBodies.Count; i++)
                 mBodies[i].dampenVelocity();
+                
         }
 
         private void updateBodyBitmask(Body body)

@@ -53,10 +53,12 @@ namespace JelloPhysics
             base.accumulateExternalForces();
 
             // gravity.
+
             for (int i = 0; i < mPointMasses.Count; i++)
             {
-                mPointMasses[i].Force += new Vector2((JellyWorldManager.Instance.Gravity.x*Gravity), (JellyWorldManager.Instance.Gravity.y*Gravity) * mPointMasses[i].Mass);
+                mPointMasses[i].Force += new Vector2((JellyWorldManager.Gravity.x*Gravity), (JellyWorldManager.Gravity.y*Gravity) * mPointMasses[i].Mass);
             }
+
 
             // dragging force.
             if (dragPoint != -1)
@@ -68,11 +70,15 @@ namespace JelloPhysics
 		
 		void OnDrawGizmos()
 		{
-			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+            Vector2 p = DerivedPos;
+			mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+            DerivedPos = p;
 			
 			VertexPositionColor[] shape = new VertexPositionColor[mPointMasses.Count];
 
-			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+            p = DerivedPos;
+			mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+            DerivedPos = p;
 			List<Vector2> points = new List<Vector2> ();
 			for (int i = 0; i < mPointMasses.Count; i++)
 			{

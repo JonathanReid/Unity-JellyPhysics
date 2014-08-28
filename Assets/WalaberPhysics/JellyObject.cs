@@ -39,7 +39,7 @@ namespace JelloPhysics
 
             Destroy(col);
 
-            ClosedShape shape = gameObject.AddComponent<ClosedShape>();
+            ClosedShape shape = new ClosedShape();
         
             shape.begin();
 
@@ -73,8 +73,8 @@ namespace JelloPhysics
 
         private void AddSpringBody(ClosedShape shape)
         {
-            DraggableSpringBody body = gameObject.AddComponent<DraggableSpringBody>();
-            body.Setup(JellyWorldManager.Instance.World, shape, 1f, SpringK, Damping, SpringK, Damping, transform.position, transform.rotation.eulerAngles.z, Vector2.one);
+            DraggableSpringBody body = new DraggableSpringBody();
+            body.Setup(JellyWorldManager.World, shape, 1f, SpringK, Damping, SpringK, Damping, transform.position, transform.rotation.eulerAngles.z, Vector2.one);
             body.Gravity = GravityModifier; 
 
             int i = springs.Count-1, l = -1;
@@ -94,8 +94,8 @@ namespace JelloPhysics
         
         private void AddPressureBody(ClosedShape shape)
         {
-            DraggablePressureBody body = gameObject.AddComponent<DraggablePressureBody>();
-            body.Setup(JellyWorldManager.Instance.World, shape, 1.0f, 40.0f, 10.0f, 1.0f, 300.0f, 20.0f, transform.position, transform.rotation.eulerAngles.z, Vector2.one);
+            DraggablePressureBody body = new DraggablePressureBody();
+            body.Setup(JellyWorldManager.World, shape, 1.0f, 40.0f, 10.0f, 1.0f, 300.0f, 20.0f, transform.position, transform.rotation.eulerAngles.z, Vector2.one);
             body.Gravity = GravityModifier;
 
             body.addInternalSpring(0, 2, 400f, 12f);
@@ -111,23 +111,27 @@ namespace JelloPhysics
 
         private void DrawJellyShape()
         {   
-            _body.mBaseShape.transformVertices(_body.DerivedPos, _body.DerivedAngle, ref _body.mScale, ref _body.mGlobalShape);
+            Vector2 p = _body.DerivedPos;
+            _body.mBaseShape.transformVertices(ref p, _body.DerivedAngle, ref _body.mScale, ref _body.mGlobalShape);
+            _body.DerivedPos = p;
+            transform.position = Vector3.Lerp(transform.position, _body.DerivedPos,0.9f);
+            transform.rotation = Quaternion.Slerp (transform.rotation, Quaternion.Euler(0, 0, _body.DerivedAngle*Mathf.Rad2Deg),0.9f);
             
             List<Vector2> points = new List<Vector2>();
             for (int i = 0; i < _body.mPointMasses.Count; i++)
             {
-				Vector3 p = _prevShape != null ? _prevShape.transform.localPosition : Vector3.zero;
-				Vector2 p1 = p;
+				Vector3 pa = _prevShape != null ? _prevShape.transform.localPosition : Vector3.zero;
+				Vector2 p1 = pa;
                 points.Add( _body.mPointMasses [i].UnRotatedPsition - p1);
             }
             if (_prevShape == null)
             {
-                Material m = new Material(BaseMaterial);
-                m.mainTexture = _spriteTexture;
+          
+                BaseMaterial.mainTexture = _spriteTexture;
 
 
 
-                MeshBuilder.Instance.material = m;
+                MeshBuilder.Instance.material = BaseMaterial;
                 MeshBuilder.Instance.BuildMesh2D(points, ShapeBuilt);
             } else
             {
@@ -138,14 +142,17 @@ namespace JelloPhysics
 //                bounds += _prevShape.GetComponent<Shape>().BoundingBox;
                 MeshBuilder.Instance.UpdateMeshPoints(_mesh,points);
             }
+
         }
 
         private void ShapeBuilt(Shape shape)
         {
+
             _prevShape = shape.BuiltGameObject;
             _mesh = _prevShape.GetComponent<MeshFilter>().mesh;
             _prevShape.transform.parent = transform;
             _prevShape.name = "DisplayObject";
+
         }
     }
 }

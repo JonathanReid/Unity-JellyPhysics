@@ -238,7 +238,7 @@ public class MeshBuilder : MonoBehaviour
         GameObject go = new GameObject();
         MeshFilter filter = go.AddComponent<MeshFilter>();
        go.AddComponent<MeshRenderer>().material = material;
-        go.transform.name = "DrawnObject";
+        //go.transform.name = "DrawnObject";
         filter.mesh = msh;
         msh.name = "DrawnObjectMesh";
 

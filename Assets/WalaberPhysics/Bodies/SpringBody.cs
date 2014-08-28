@@ -230,7 +230,9 @@ namespace JelloPhysics
             // shape matching forces.
             if (mShapeMatchingOn)
             {
-                mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+                Vector2 p = DerivedPos;
+                mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+                DerivedPos = p;
                 for (int i = 0; i < mPointMasses.Count; i++)
                 {
                     if (mShapeSpringK > 0)
@@ -259,12 +261,16 @@ namespace JelloPhysics
 
 		void OnDrawGizmos()
 		{
-			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+            Vector2 p = DerivedPos;
+			mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+            DerivedPos = p;
 			
 			VertexPositionColor[] shape = new VertexPositionColor[mPointMasses.Count * 2];
 			VertexPositionColor[] springs = new VertexPositionColor[mSprings.Count * 2];
 			
-			mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+            p = DerivedPos;
+			mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+            DerivedPos = p;
 			for (int i = 0; i < mPointMasses.Count; i++)
 			{
 				shape[(i * 2) + 0] = new VertexPositionColor();

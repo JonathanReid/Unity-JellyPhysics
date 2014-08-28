@@ -29,7 +29,7 @@ namespace JelloPhysics
     /// <summary>
     /// class that represents a single polygonal closed shape (can be concave)
     /// </summary>
-    public class ClosedShape : MonoBehaviour
+    public class ClosedShape
     {
         #region PRIVATE VARIABLES
         ////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ namespace JelloPhysics
         /// <param name="angleInRadians">rotation (in radians)</param>
         /// <param name="localScale">scale</param>
         /// <param name="outList">new list of transformed points.</param>
-        public void transformVertices(Vector2 worldPos, float angleInRadians, ref Vector2 localScale, ref Vector2[] outList)
+        public void transformVertices(ref Vector2 worldPos, float angleInRadians, ref Vector2 localScale, ref Vector2[] outList)
         {
             for (int i = 0; i < mLocalVertices.Count; i++)
             {

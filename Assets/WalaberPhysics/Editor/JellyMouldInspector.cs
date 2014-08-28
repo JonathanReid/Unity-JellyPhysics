@@ -86,9 +86,23 @@ namespace JelloPhysics
                     }
                     indexes.Add(index);
                 }
-                _target.springs.Add(new Vector2(indexes[0],indexes[1]));
-                _target.springs.Add(new Vector2(indexes[1], indexes[2]));
-                _target.springs.Add(new Vector2(indexes[2], indexes[0]));
+
+				Vector2 t1 = new Vector2(indexes[0],indexes[1]);
+				Vector2 t2 = new Vector2(indexes[1],indexes[2]);
+				Vector2 t3 = new Vector2(indexes[2],indexes[0]);
+
+				if(_target.springs.Contains(t1) && _target.springs.Contains(t2) && _target.springs.Contains(t3))
+				{
+					_target.springs.Add(t3);
+					_target.springs.Add(t2);
+					_target.springs.Add(t1);
+				}
+				else
+				{
+					_target.springs.Add(t1);
+                _target.springs.Add(t2);
+                _target.springs.Add(t3);
+				}
             }
 			DestroyImmediate(_oldShape);
 

@@ -35,7 +35,7 @@ namespace JelloPhysics
     /// volume for this body.  Individual implementations of Body handle forcing the body to keep it's shape through
     /// various methods.
     /// </summary>
-    public class Body : MonoBehaviour
+    public class Body
     {
         #region EVENTS
         public delegate void CollisionEvent(Body otherBody);
@@ -69,7 +69,8 @@ namespace JelloPhysics
             set
             {
                 _derivedPos = value;
-                transform.position = _derivedPos;
+//                Debug.Log(_derivedPos);
+                //transform.position = _derivedPos;
             }
         }
 
@@ -82,7 +83,7 @@ namespace JelloPhysics
             set
             {
                 _derivedAngle = value;
-                transform.rotation = Quaternion.Euler(0, 0, _derivedAngle*Mathf.Rad2Deg);
+                //transform.rotation = Quaternion.Euler(0, 0, _derivedAngle*Mathf.Rad2Deg);
             }
         }
         //// debug visualization variables
@@ -200,8 +201,10 @@ namespace JelloPhysics
             {
                 mPointMasses.Clear();
                 mGlobalShape = new Vector2[mBaseShape.Vertices.Count];
-                
-                mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+
+                Vector2 p = DerivedPos;
+                mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+                DerivedPos = p;
 
                 for (int i = 0; i < mBaseShape.Vertices.Count; i++)
                     mPointMasses.Add(new PointMass(0.0f, mGlobalShape [i]));               
@@ -269,9 +272,10 @@ namespace JelloPhysics
         /// <param name="angleInRadians">global angle</param>
         public virtual void setPositionAngle(Vector2 pos, float angleInRadians, Vector2 scale)
         {
-            mBaseShape.transformVertices(pos, angleInRadians, ref scale, ref mGlobalShape);
+            mBaseShape.transformVertices(ref pos, angleInRadians, ref scale, ref mGlobalShape);
             for (int i = 0; i < mPointMasses.Count; i++)
                 mPointMasses [i].Position = mGlobalShape [i];
+
 
             DerivedPos = pos;
             DerivedAngle = angleInRadians;
@@ -589,6 +593,7 @@ namespace JelloPhysics
         private List<Body> _collisionBodies = new List<Body>();
         private void CheckCollision()
         {
+            /*
             Body[] otherPressureBodies = FindObjectsOfType<Body>();
             if (otherPressureBodies.Length > 1)
             {
@@ -631,6 +636,7 @@ namespace JelloPhysics
                     }
                 }
             }
+            */
         }
 
         /// <summary>
@@ -979,7 +985,9 @@ namespace JelloPhysics
 
         void OnDrawGizmos()
         {
-            mBaseShape.transformVertices(DerivedPos, DerivedAngle, ref mScale, ref mGlobalShape);
+            Vector2 p = DerivedPos;
+            mBaseShape.transformVertices(ref p, DerivedAngle, ref mScale, ref mGlobalShape);
+            DerivedPos = p;
             
             VertexPositionColor[] debugVerts = new VertexPositionColor[mGlobalShape.Length + 1];
             for (int i = 0; i < mPointMasses.Count; i++)
